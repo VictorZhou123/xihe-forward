@@ -1,4 +1,4 @@
-FROM golang:latest as BUILDER
+FROM golang:1.18.10 as BUILDER
 
 # build binary
 COPY . /go/src/github.com/VictorZhou123/xihe-forward
