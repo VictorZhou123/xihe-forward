@@ -1,4 +1,4 @@
-module xihe-forward
+module github.com/VictorZhou123/xihe-forward
 
 go 1.20
 
