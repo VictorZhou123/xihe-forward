@@ -15,6 +15,7 @@ import (
 const (
 	protocol = "https://"
 	host     = "xihe.mindspore.cn"
+	hostTest = "xihe2.test.osinfra.cn"
 	poolHost = ".pool1.mindspore.cn"
 
 	typeCloud     = "cloud"
@@ -114,7 +115,7 @@ func proxy(ctx *gin.Context) {
 	// check auth
 	t, id := getTypeId(u)
 	s := NewXiheServer(ctx)
-	ok, err := s.AllowedCloud(fmt.Sprintf("%s%s/api/v1/%s/%s", protocol, host, t, id))
+	ok, err := s.AllowedCloud(fmt.Sprintf("%s%s/api/v1/%s/%s", protocol, hostTest, t, id))
 	if err != nil {
 		logrus.Warnf("internal error: %s", err.Error())
 
