@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
@@ -13,10 +14,12 @@ import (
 )
 
 const (
-	protocol = "https://"
-	host     = "xihe.mindspore.cn"
-	hostTest = "xihe2.test.osinfra.cn"
-	poolHost = ".pool1.mindspore.cn"
+	protocolHttps = "https://"
+	protocolHttp  = "http://"
+	host          = "xihe.mindspore.cn"
+	hostTest      = "xihe2.test.osinfra.cn"
+	hostLocal     = "127.0.0.1:8080"
+	poolHost      = ".pool1.mindspore.cn"
 
 	typeCloud     = "cloud"
 	typeInference = "inference"
@@ -40,7 +43,7 @@ func setCookie(ctx *gin.Context, key string, value string) {
 func getTypeId(url string) (t, id string) {
 	f := func(u string) string {
 		r := strings.Split(u, poolHost)[0]
-		return strings.Split(r, protocol)[1]
+		return strings.Split(r, protocolHttps)[1]
 	}
 
 	r := f(url)
@@ -90,12 +93,12 @@ func forward(ctx *gin.Context, u string) {
 	proxy.ServeHTTP(ctx.Writer, ctx.Request)
 }
 
-func getSetURL(ctx *gin.Context) string {
+func getSetURL(ctx *gin.Context) (string, error) {
 	u := ctx.Query("url")
 	if u != "" {
 		setCookie(ctx, "url", u)
 
-		return u
+		return u, nil
 	}
 
 	cookieURL, err := ctx.Request.Cookie("url")
@@ -103,19 +106,26 @@ func getSetURL(ctx *gin.Context) string {
 		logrus.Warnf("cannot found url")
 
 		ctx.JSON(http.StatusBadRequest, "")
+
+		return "", errors.New("get url error")
 	}
 
-	return cookieURL.Value
+	return cookieURL.Value, nil
 }
 
 func proxy(ctx *gin.Context) {
 	// get resource url
-	u := getSetURL(ctx)
+	u, err := getSetURL(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, "")
+
+		return
+	}
 
 	// check auth
 	t, id := getTypeId(u)
 	s := NewXiheServer(ctx)
-	ok, err := s.AllowedCloud(fmt.Sprintf("%s%s/api/v1/%s/%s", protocol, hostTest, t, id))
+	ok, err := s.AllowedCloud(fmt.Sprintf("%s%s/api/v1/%s/%s", protocolHttps, hostTest, t, id))
 	if err != nil {
 		logrus.Warnf("internal error: %s", err.Error())
 
