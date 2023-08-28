@@ -123,25 +123,56 @@ func proxy(ctx *gin.Context) {
 	}
 
 	// check auth
-	t, id := getTypeId(u)
-	fmt.Printf("t: %v\n", t)
-	fmt.Printf("id: %v\n", id)
+	path := ctx.Value("path").(string)
+	fmt.Printf("path: %v\n", path)
+	if path == "/" {
+		t, id := getTypeId(u)
+		s := NewXiheServer(ctx)
+		ok, err := s.AllowedCloud(fmt.Sprintf("%s%s/api/v1/%s/%s", protocolHttps, hostTest, t, id))
+		if err != nil {
+			logrus.Warnf("internal error: %s", err.Error())
 	
-	s := NewXiheServer(ctx)
-	ok, err := s.AllowedCloud(fmt.Sprintf("%s%s/api/v1/%s/%s", protocolHttps, hostTest, t, id))
-	if err != nil {
-		logrus.Warnf("internal error: %s", err.Error())
-
-		ctx.JSON(http.StatusInternalServerError, "")
-
-		return
-	}
-	if !ok {
-		ctx.JSON(http.StatusUnauthorized, "")
-
-		return
+			ctx.JSON(http.StatusInternalServerError, "")
+	
+			return
+		}
+		if !ok {
+			ctx.JSON(http.StatusUnauthorized, "")
+	
+			return
+		}
 	}
 
 	// forward
 	forward(ctx, u)
 }
+
+// func Request(ctx content.Context, url string) (code string, err error) {
+// 	url := "https://example.com/api"
+// 	cookieValue := "your-cookie-value" // 替换为你的 Cookie 值
+
+// 	req, err := http.NewRequest("GET", url, nil)
+// 	if err != nil {
+// 		fmt.Println("Error creating request:", err)
+// 		return
+// 	}
+
+// 	// 添加 Cookie 到请求头
+// 	cookie := &http.Cookie{Name: "your-cookie-name", Value: cookieValue}
+// 	req.AddCookie(cookie)
+
+// 	client := &http.Client{}
+// 	resp, err := client.Do(req)
+// 	if err != nil {
+// 		fmt.Println("Error sending request:", err)
+// 		return
+// 	}
+// 	defer resp.Body.Close()
+
+// 	// 检查响应状态码
+// 	if resp.StatusCode != http.StatusOK {
+// 		fmt.Printf("Request failed with status code: %d\n", resp.StatusCode)
+// 		return
+// 	}
+
+// }
