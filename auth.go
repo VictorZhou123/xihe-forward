@@ -26,6 +26,8 @@ func NewXiheServer(
 func (s xiheServer) AllowedCloud(u string) (ok bool, err error) {
 	forward(s.Ctx, u)
 
+	fmt.Printf("s.Ctx.Request: %+v\n", s.Ctx.Request)
+
 	if s.Ctx.Request.Response.Status == fmt.Sprint(http.StatusOK) {
 		return true, nil
 	}
