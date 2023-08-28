@@ -124,6 +124,9 @@ func proxy(ctx *gin.Context) {
 
 	// check auth
 	t, id := getTypeId(u)
+	fmt.Printf("t: %v\n", t)
+	fmt.Printf("id: %v\n", id)
+	
 	s := NewXiheServer(ctx)
 	ok, err := s.AllowedCloud(fmt.Sprintf("%s%s/api/v1/%s/%s", protocolHttps, hostTest, t, id))
 	if err != nil {
