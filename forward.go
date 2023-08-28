@@ -123,7 +123,7 @@ func proxy(ctx *gin.Context) {
 	}
 
 	// check auth
-	path := ctx.Value("path").(string)
+	path := ctx.Request.URL.Path
 	fmt.Printf("path: %v\n", path)
 	if path == "/" {
 		t, id := getTypeId(u)
