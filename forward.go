@@ -122,26 +122,26 @@ func proxy(ctx *gin.Context) {
 		return
 	}
 
-	// check auth
-	path := ctx.Request.URL.Path
-	fmt.Printf("path: %v\n", path)
-	if path == "/" {
-		t, id := getTypeId(u)
-		s := NewXiheServer(ctx)
-		ok, err := s.AllowedCloud(fmt.Sprintf("%s%s/api/v1/%s/%s", protocolHttps, hostTest, t, id))
-		if err != nil {
-			logrus.Warnf("internal error: %s", err.Error())
+	// // check auth
+	// path := ctx.Request.URL.Path
+	// fmt.Printf("path: %v\n", path)
+	// if path == "/" {
+	// 	t, id := getTypeId(u)
+	// 	s := NewXiheServer(ctx)
+	// 	ok, err := s.AllowedCloud(fmt.Sprintf("%s%s/api/v1/%s/%s", protocolHttps, hostTest, t, id))
+	// 	if err != nil {
+	// 		logrus.Warnf("internal error: %s", err.Error())
 	
-			ctx.JSON(http.StatusInternalServerError, "")
+	// 		ctx.JSON(http.StatusInternalServerError, "")
 	
-			return
-		}
-		if !ok {
-			ctx.JSON(http.StatusUnauthorized, "")
+	// 		return
+	// 	}
+	// 	if !ok {
+	// 		ctx.JSON(http.StatusUnauthorized, "")
 	
-			return
-		}
-	}
+	// 		return
+	// 	}
+	// }
 
 	// forward
 	forward(ctx, u)
